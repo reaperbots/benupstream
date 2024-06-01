@@ -74,21 +74,21 @@ SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
 STATUS_START = 0
 PAGES = 1
 PAGE_NO = 1
-STATUS_LIMIT = 4
+STATUS_LIMIT = 7
 
 class MirrorStatus:
-    STATUS_UPLOADING = "Uploading"
-    STATUS_DOWNLOADING = "Downloading"
-    STATUS_CLONING = "Cloning"
+    STATUS_UPLOADING = "🚀"
+    STATUS_DOWNLOADING = "🛝"
+    STATUS_CLONING = "♻️"
     STATUS_QUEUEDL = "DL queued"
     STATUS_QUEUEUP = "UL queued"
-    STATUS_PAUSED = "Paused"
-    STATUS_ARCHIVING = "Archiving"
-    STATUS_EXTRACTING = "Extracting"
-    STATUS_SPLITTING = "Splitting"
+    STATUS_PAUSED = "⏸️"
+    STATUS_ARCHIVING = "🔐"
+    STATUS_EXTRACTING = "🔓"
+    STATUS_SPLITTING = "🪓"
     STATUS_CHECKING = "CheckUp"
-    STATUS_SEEDING = "Seeding"
-    STATUS_PROCESSING = "Processing"
+    STATUS_SEEDING = "🐌"
+    STATUS_PROCESSING = "🌀"
 
 
 class setInterval:
@@ -195,7 +195,7 @@ def source(self):
 
 
 def get_readable_message():
-    msg = '<b>Powered by Aeon</b>\n\n'
+    msg = ''
     button = None
     tasks = len(download_dict)
     currentTime = get_readable_time(time() - botStartTime)
@@ -208,16 +208,14 @@ def get_readable_message():
         globals()['STATUS_START'] = STATUS_LIMIT * (PAGES - 1)
         globals()['PAGE_NO'] = PAGES
     for download in list(download_dict.values())[STATUS_START:STATUS_LIMIT+STATUS_START]:
-        msg += f"<b>{download.status()}:</b> {escape(f'{download.name()}')}\n"
-        msg += f"by {source(download)}\n"
+        msg += f"<b>{escape(f'{download.name()}')}</b>\n"
         if download.status() not in [MirrorStatus.STATUS_SPLITTING, MirrorStatus.STATUS_SEEDING, MirrorStatus.STATUS_PROCESSING]:
-            msg += f"<blockquote><code>{progress_bar(download.progress())}</code> {download.progress()}"
-            msg += f"\n{download.processed_bytes()} of {download.size()}"
-            msg += f"\nSpeed: {download.speed()}"
-            msg += f'\nEstimated: {download.eta()}'
+            msg += f"<blockquote><b>{progress_bar(download.progress())} | {download.status()} » {download.speed()}</b>"
+            msg += f"\n<b>{download.processed_bytes()} of {download.size()} | @{source(download)}</b>"
+            msg += f'\n<b>ETA :</b> {download.eta()}'
             if hasattr(download, 'seeders_num'):
                 try:
-                    msg += f"\nSeeders: {download.seeders_num()} | Leechers: {download.leechers_num()}"
+                    msg += f" <b>| S/L :</b> {download.seeders_num()}/{download.leechers_num()}"
                 except:
                     pass
         elif download.status() == MirrorStatus.STATUS_SEEDING:
@@ -228,8 +226,8 @@ def get_readable_message():
             msg += f"\nTime: {download.seeding_time()}"
         else:
             msg += f"<blockquote>Size: {download.size()}"
-        msg += f"\nElapsed: {get_readable_time(time() - download.message.date.timestamp())}</blockquote>"
-        msg += f"\n<blockquote>/stop_{download.gid()[:8]}</blockquote>\n\n"
+        msg += f"<b> | Past:</b> {get_readable_time(time() - download.message.date.timestamp())}"
+        msg += f"\n<b>❌Abort:/stop_{download.gid()[:8]}</b></blockquote>\n\n"
     if len(msg) == 0:
         return None, None
     dl_speed = 0
@@ -248,11 +246,7 @@ def get_readable_message():
         buttons.ibutton(f"{PAGE_NO}/{PAGES}", "status ref")
         buttons.ibutton("Next", "status nex")
         button = buttons.build_menu(3)
-    msg += f"<b>• Tasks</b>: {tasks}{bmax_task}"
-    msg += f"\n<b>• Bot uptime</b>: {currentTime}"
-    msg += f"\n<b>• Free disk space</b>: {get_readable_file_size(disk_usage('/usr/src/app/downloads/').free)}"
-    msg += f"\n<b>• Uploading speed</b>: {get_readable_file_size(up_speed)}/s"
-    msg += f"\n<b>• Downloading speed</b>: {get_readable_file_size(dl_speed)}/s"
+    msg += f"<b>Tasks:</b> {tasks}{bmax_task} <b>| UPTM:</b> {currentTime} <b>| Free:</b> {get_readable_file_size(disk_usage('/usr/src/app/downloads/').free)}"
     return msg, button
 
 
